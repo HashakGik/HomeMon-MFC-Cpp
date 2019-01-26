@@ -1,0 +1,9 @@
+*~
+Debug
+Release
+ipch
+*.sdf
+*.zip
+HomeMon/*.ini
+HomeMon/Debug
+HomeMon/Release
