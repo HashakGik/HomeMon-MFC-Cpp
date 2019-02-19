@@ -31,6 +31,28 @@ void Accelerometer::Update(std::vector<uint8_t> val)
 	while (val.size() < 2)
 		val.push_back(0);
 
+	for (i = -5; i < 5; i++)
+	{
+		if (this->cx - this->length / 2 + oldVal[0] * this->length / 0xff + i >= this->rect.left && this->cx - this->length / 2 + oldVal[0] * this->length / 0xff + i < this->rect.right &&
+			this->cy - this->length / 2 + oldVal[1] * this->length / 0xff >= this->rect.top && this->cy - this->length / 2 + oldVal[1] * this->length / 0xff < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / 0xff + i, this->cy - this->length / 2 + this->oldVal[1] * this->length / 0xff, bgR, bgG, bgB);
+		
+		if (this->cx - this->length / 2 + oldVal[0] * this->length / 0xff >= this->rect.left && this->img, this->cx - this->length / 2 + oldVal[0] * this->length / 0xff < this->rect.right &&
+			this->cy - this->length / 2 + oldVal[1] * this->length / 0xff + i >= this->rect.top && this->cy - this->length / 2 + oldVal[1] * this->length / 0xff + i < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / 0xff, this->cy - this->length / 2 + this->oldVal[1] * this->length / 0xff + i, bgR, bgG, bgB);
+	}
+
+	for (i = -5; i < 5; i++)
+	{
+		if (this->cx - this->length / 2 + val[0] * this->length / 0xff + i >= this->rect.left && this->cx - this->length / 2 + val[0] * this->length / 0xff + i < this->rect.right &&
+			this->cy - this->length / 2 + val[1] * this->length / 0xff >= this->rect.top && this->cy - this->length / 2 + val[1] * this->length / 0xff < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff + i, this->cy - this->length / 2 + val[1] * this->length / 0xff, fgR, fgG, fgB);
+		
+		if (this->cx - this->length / 2 + val[0] * this->length / 0xff >= this->rect.left && this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff < this->rect.right &&
+			this->cy - this->length / 2 + val[1] * this->length / 0xff + i >= this->rect.top && this->cy - this->length / 2 + val[1] * this->length / 0xff + i < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff, this->cy - this->length / 2 + val[1] * this->length / 0xff + i, fgR, fgG, fgB);
+	}
+
 	if (this->shp == A_SQUARE)
 		for (j = 1; j <= this->rings; j++)
 			for (i = -this->length / this->rings / 2 * j; i < this->length / this->rings / 2 * j; i++)
@@ -43,18 +65,6 @@ void Accelerometer::Update(std::vector<uint8_t> val)
 	else
 		for (l = 1; l <= this->rings; l++)
 			DrawCircle(this->img, this->cx, this->cy, this->fgR, this->fgG, this->fgB, this->length / 2 / this->rings * l);
-
-	for (i = -5; i < 5; i++)
-	{
-		this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / 0xff + i, this->cy - this->length / 2 + this->oldVal[1] * this->length / 0xff, bgR, bgG, bgB);
-		this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / 0xff, this->cy - this->length / 2 + this->oldVal[1] * this->length / 0xff + i, bgR, bgG, bgB);
-	}
-
-	for (i = -5; i < 5; i++)
-	{
-		this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff + i, this->cy - this->length / 2 + val[1] * this->length / 0xff, fgR, fgG, fgB);
-		this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff, this->cy - this->length / 2 + val[1] * this->length / 0xff + i, fgR, fgG, fgB);
-	}
 
 	this->oldVal[0] = val[0];
 	this->oldVal[1] = val[1];

@@ -30,8 +30,8 @@ Control::~Control()
 {
 	int i, j;
 
-	for (i = this->rect.top; i < this->rect.bottom; i++)
-		for (j = this->rect.left; j < this->rect.right; j++)
+	for (i = this->rect.top; i <= this->rect.bottom; i++)
+		for (j = this->rect.left; j <= this->rect.right; j++)
 			this->SetSafePixelRGB(this->img, j, i, this->bgR, this->bgG, this->bgB);
 
 	if (this->sample != nullptr)

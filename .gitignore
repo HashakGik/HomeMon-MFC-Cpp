@@ -7,3 +7,4 @@ ipch
 HomeMon/*.ini
 HomeMon/Debug
 HomeMon/Release
+*.zip
