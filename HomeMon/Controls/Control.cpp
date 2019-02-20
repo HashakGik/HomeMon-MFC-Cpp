@@ -4,13 +4,15 @@
 #include <algorithm>
 #include <cmath>
 
-Control::Control(CImage *img, int x1, int y1, int x2, int y2, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB)
+Control::Control(CImage *img, int x1, int y1, int x2, int y2, int min, int max, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB)
 {
 	this->img = img;
 	this->rect.top = y1;
 	this->rect.bottom = y2;
 	this->rect.left = x1;
 	this->rect.right = x2;
+	this->min = min;
+	this->max = max;
 	this->fgR = fgR;
 	this->fgG = fgG;
 	this->fgB = fgB;
@@ -81,6 +83,8 @@ std::map<std::string, int> Control::GetState()
 	memento["x1"] = this->rect.right;
 	memento["y0"] = this->rect.top;
 	memento["y1"] = this->rect.bottom;
+	memento["min"] = this->min;
+	memento["max"] = this->max;
 	memento["bgr"] = this->bgR;
 	memento["bgg"] = this->bgG;
 	memento["bgb"] = this->bgB;
@@ -100,6 +104,8 @@ bool Control::SetState(std::map<std::string, int> memento)
 	ret &= memento.count("x1") == 1;
 	ret &= memento.count("y0") == 1;
 	ret &= memento.count("y1") == 1;
+	ret &= memento.count("min") == 1;
+	ret &= memento.count("max") == 1;
 	ret &= memento.count("bgr") == 1;
 	ret &= memento.count("bgg") == 1;
 	ret &= memento.count("bgb") == 1;
@@ -108,6 +114,7 @@ bool Control::SetState(std::map<std::string, int> memento)
 	ret &= memento.count("fgb") == 1;
 	ret &= memento["x0"] < memento["x1"];
 	ret &= memento["y0"] < memento["y1"];
+	ret &= memento["min"] < memento["max"];
 	ret &= memento["bgr"] >= 0 && memento["bgr"] <= 0xff;
 	ret &= memento["bgg"] >= 0 && memento["bgg"] <= 0xff;
 	ret &= memento["bgb"] >= 0 && memento["bgb"] <= 0xff;
@@ -122,6 +129,8 @@ bool Control::SetState(std::map<std::string, int> memento)
 		this->rect.right = memento["x1"];
 		this->rect.top = memento["y0"];
 		this->rect.bottom = memento["y1"];
+		this->min = memento["min"];
+		this->max = memento["max"];
 		this->fgR = memento["fgr"];
 		this->fgG = memento["fgg"];
 		this->fgB = memento["fgb"];

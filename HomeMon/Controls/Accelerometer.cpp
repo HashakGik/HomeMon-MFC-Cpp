@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Accelerometer.h"
 
-Accelerometer::Accelerometer(CImage *img, int cx, int cy, int length, int rings, shape_t shp, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
-	Control(img, cx - length / 2, cy - length / 2, cx + length / 2, cy + length / 2, fgR, fgG, fgB, bgR, bgG, bgB)
+Accelerometer::Accelerometer(CImage *img, int cx, int cy, int length, int rings, shape_t shp, int min, int max, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
+	Control(img, cx - length / 2, cy - length / 2, cx + length / 2, cy + length / 2, min, max, fgR, fgG, fgB, bgR, bgG, bgB)
 {
 	this->length = length;
 	this->rings = rings;
@@ -23,9 +23,18 @@ Accelerometer::Accelerometer(CImage * img, std::map<std::string, int> state) :
 	this->type = C_ACCELEROMETER;
 }
 
-void Accelerometer::Update(std::vector<uint8_t> val)
+void Accelerometer::Update(std::vector<int32_t> val)
 {
 	int i, j, l;
+
+	for (int i = 0; i < val.size(); i++)
+	{
+		val[i] -= this->min;
+		if (val[i] < 0)
+			val[i] = 0;
+		else if (val[i] > this->max - this->min)
+			val[i] = this->max - this->min;
+	}
 
 	// If less than two values are passed, add zeroes.
 	while (val.size() < 2)
@@ -33,29 +42,29 @@ void Accelerometer::Update(std::vector<uint8_t> val)
 
 	for (i = -5; i < 5; i++)
 	{
-		if (this->cx - this->length / 2 + oldVal[0] * this->length / 0xff + i >= this->rect.left && this->cx - this->length / 2 + oldVal[0] * this->length / 0xff + i < this->rect.right &&
-			this->cy - this->length / 2 + oldVal[1] * this->length / 0xff >= this->rect.top && this->cy - this->length / 2 + oldVal[1] * this->length / 0xff < this->rect.bottom)
-			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / 0xff + i, this->cy - this->length / 2 + this->oldVal[1] * this->length / 0xff, bgR, bgG, bgB);
+		if (this->cx - this->length / 2 + oldVal[0] * this->length / (this->max - this->min) + i >= this->rect.left && this->cx - this->length / 2 + oldVal[0] * this->length / (this->max - this->min) + i < this->rect.right &&
+			this->cy - this->length / 2 + oldVal[1] * this->length / (this->max - this->min) >= this->rect.top && this->cy - this->length / 2 + oldVal[1] * this->length / (this->max - this->min) < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / (this->max - this->min) + i, this->cy - this->length / 2 + this->oldVal[1] * this->length / (this->max - this->min), bgR, bgG, bgB);
 		
-		if (this->cx - this->length / 2 + oldVal[0] * this->length / 0xff >= this->rect.left && this->img, this->cx - this->length / 2 + oldVal[0] * this->length / 0xff < this->rect.right &&
-			this->cy - this->length / 2 + oldVal[1] * this->length / 0xff + i >= this->rect.top && this->cy - this->length / 2 + oldVal[1] * this->length / 0xff + i < this->rect.bottom)
-			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / 0xff, this->cy - this->length / 2 + this->oldVal[1] * this->length / 0xff + i, bgR, bgG, bgB);
+		if (this->cx - this->length / 2 + oldVal[0] * this->length / (this->max - this->min) >= this->rect.left && this->img, this->cx - this->length / 2 + oldVal[0] * this->length / (this->max - this->min) < this->rect.right &&
+			this->cy - this->length / 2 + oldVal[1] * this->length / (this->max - this->min) + i >= this->rect.top && this->cy - this->length / 2 + oldVal[1] * this->length / (this->max - this->min) + i < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + this->oldVal[0] * this->length / (this->max - this->min), this->cy - this->length / 2 + this->oldVal[1] * this->length / (this->max - this->min) + i, bgR, bgG, bgB);
 	}
 
 	for (i = -5; i < 5; i++)
 	{
-		if (this->cx - this->length / 2 + val[0] * this->length / 0xff + i >= this->rect.left && this->cx - this->length / 2 + val[0] * this->length / 0xff + i < this->rect.right &&
-			this->cy - this->length / 2 + val[1] * this->length / 0xff >= this->rect.top && this->cy - this->length / 2 + val[1] * this->length / 0xff < this->rect.bottom)
-			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff + i, this->cy - this->length / 2 + val[1] * this->length / 0xff, fgR, fgG, fgB);
+		if (this->cx - this->length / 2 + val[0] * this->length / (this->max - this->min) + i >= this->rect.left && this->cx - this->length / 2 + val[0] * this->length / (this->max - this->min) + i < this->rect.right &&
+			this->cy - this->length / 2 + val[1] * this->length / (this->max - this->min) >= this->rect.top && this->cy - this->length / 2 + val[1] * this->length / (this->max - this->min) < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / (this->max - this->min) + i, this->cy - this->length / 2 + val[1] * this->length / (this->max - this->min), fgR, fgG, fgB);
 		
-		if (this->cx - this->length / 2 + val[0] * this->length / 0xff >= this->rect.left && this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff < this->rect.right &&
-			this->cy - this->length / 2 + val[1] * this->length / 0xff + i >= this->rect.top && this->cy - this->length / 2 + val[1] * this->length / 0xff + i < this->rect.bottom)
-			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / 0xff, this->cy - this->length / 2 + val[1] * this->length / 0xff + i, fgR, fgG, fgB);
+		if (this->cx - this->length / 2 + val[0] * this->length / (this->max - this->min) >= this->rect.left && this->img, this->cx - this->length / 2 + val[0] * this->length / (this->max - this->min) < this->rect.right &&
+			this->cy - this->length / 2 + val[1] * this->length / (this->max - this->min) + i >= this->rect.top && this->cy - this->length / 2 + val[1] * this->length / (this->max - this->min) + i < this->rect.bottom)
+			this->SetSafePixelRGB(this->img, this->cx - this->length / 2 + val[0] * this->length / (this->max - this->min), this->cy - this->length / 2 + val[1] * this->length / (this->max - this->min) + i, fgR, fgG, fgB);
 	}
 
 	if (this->shp == A_SQUARE)
 		for (j = 1; j <= this->rings; j++)
-			for (i = -this->length / this->rings / 2 * j; i < this->length / this->rings / 2 * j; i++)
+			for (i = -this->length / this->rings / 2 * j; i <= this->length / this->rings / 2 * j; i++)
 			{
 				this->SetSafePixelRGB(this->img, this->cx + i, this->cy - this->length / this->rings / 2 * j, fgR, fgG, fgB);
 				this->SetSafePixelRGB(this->img, this->cx + i, this->cy + this->length / this->rings / 2 * j, fgR, fgG, fgB);
@@ -78,7 +87,7 @@ void Accelerometer::Init()
 
 	if (this->shp == A_SQUARE)
 		for (j = 1; j <= this->rings; j++)
-			for (i = -this->length / this->rings / 2 * j; i < this->length / this->rings / 2 * j; i++)
+			for (i = -this->length / this->rings / 2 * j; i <= this->length / this->rings / 2 * j; i++)
 			{
 				this->SetSafePixelRGB(this->img, this->cx + i, this->cy - this->length / this->rings / 2 * j, this->fgR, this->fgG, this->fgB);
 				this->SetSafePixelRGB(this->img, this->cx + i, this->cy + this->length / this->rings / 2 * j, this->fgR, this->fgG, this->fgB);
@@ -103,7 +112,7 @@ CImage *Accelerometer::GetSample(RECT r)
 
 		if (this->shp == A_SQUARE)
 			for (j = 1; j <= this->rings; j++)
-				for (i = -length / this->rings / 2 * j; i < length / this->rings / 2 * j; i++)
+				for (i = -length / this->rings / 2 * j; i <= length / this->rings / 2 * j; i++)
 				{
 					this->SetSafePixelRGB(this->sample, x + i, y - length / this->rings / 2 * j, fgR, fgG, fgB);
 					this->SetSafePixelRGB(this->sample, x + i, y + length / this->rings / 2 * j, fgR, fgG, fgB);

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Radar.h"
 
-Radar::Radar(CImage *img, int cx, int cy, int radius, int rings, int size, fill_t fill, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
-	Control(img, cx - radius, cy - radius, cx + radius, cy + radius, fgR, fgG, fgB, bgR, bgG, bgB)
+Radar::Radar(CImage *img, int cx, int cy, int radius, int rings, int size, fill_t fill, int min, int max, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
+	Control(img, cx - radius, cy - radius, cx + radius, cy + radius, min, max, fgR, fgG, fgB, bgR, bgG, bgB)
 {
 	this->radius = radius;
 	this->rings = rings;
@@ -24,10 +24,19 @@ Radar::Radar(CImage * img, std::map<std::string, int> state) :
 	this->type = C_RADAR;
 }
 
-void Radar::Update(std::vector<uint8_t> val)
+void Radar::Update(std::vector<int32_t> val)
 {
 	int i;
 	std::vector<int> x(this->size), y(this->size);
+
+	for (int i = 0; i < val.size(); i++)
+	{
+		val[i] -= this->min;
+		if (val[i] < 0)
+			val[i] = 0;
+		else if (val[i] > this->max - this->min)
+			val[i] = this->max - this->min;
+	}
 
 	// If less than this->size values are passed, add zeroes.
 	while (val.size() < this->size)
@@ -35,8 +44,8 @@ void Radar::Update(std::vector<uint8_t> val)
 
 	for (i = 0; i < this->size; i++)
 	{
-		x[i] = this->oldVal[i] * this->radius / 0xff * cos(6.28 * i / this->size) + this->cx;
-		y[i] = this->oldVal[i] * this->radius / 0xff * sin(6.28 * i / this->size) + this->cy;
+		x[i] = this->oldVal[i] * this->radius / (this->max - this->min) * cos(6.28 * i / this->size) + this->cx;
+		y[i] = this->oldVal[i] * this->radius / (this->max - this->min) * sin(6.28 * i / this->size) + this->cy;
 	}
 
 	if (this->fill == R_NOFILL)
@@ -54,8 +63,8 @@ void Radar::Update(std::vector<uint8_t> val)
 
 	for (i = 0; i < this->size; i++)
 	{
-		x[i] = val[i] * this->radius / 0xff * cos(6.28 * i / this->size) + this->cx;
-		y[i] = val[i] * this->radius / 0xff * sin(6.28 * i / this->size) + this->cy;
+		x[i] = val[i] * this->radius / (this->max - this->min) * cos(6.28 * i / this->size) + this->cx;
+		y[i] = val[i] * this->radius / (this->max - this->min) * sin(6.28 * i / this->size) + this->cy;
 	}
 
 

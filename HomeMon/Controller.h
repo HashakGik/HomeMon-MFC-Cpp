@@ -33,7 +33,7 @@ public:
 	void SetImg(CImage *img);
 private:
 	std::map<Control *, std::vector<std::string> > controls;
-	std::map<std::string, uint8_t> buffer;
+	std::map<std::string, int32_t> buffer;
 	CImage *img;
 	Worker w;
 };

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Plot.h"
 
-Plot::Plot(CImage * img, int x1, int y1, int x2, int y2, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
-	Control(img, x1, y1, x2, y2, fgR, fgG, fgB, bgR, bgG, bgB)
+Plot::Plot(CImage * img, int x1, int y1, int x2, int y2, int min, int max, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
+	Control(img, x1, y1, x2, y2, min, max, fgR, fgG, fgB, bgR, bgG, bgB)
 {
 	this->i = 0;
 	this->oldVal.push_back(0);
@@ -17,12 +17,21 @@ Plot::Plot(CImage * img, std::map<std::string, int> state) :
 	this->type = C_PLOT;
 }
 
-void Plot::Update(std::vector<uint8_t> val)
+void Plot::Update(std::vector<int32_t> val)
 {
 	int j;
 
+	for (int i = 0; i < val.size(); i++)
+	{
+		val[i] -= this->min;
+		if (val[i] < 0)
+			val[i] = 0;
+		else if (val[i] > this->max - this->min)
+			val[i] = this->max - this->min;
+	}
+
 	for (j = this->rect.top; j < this->rect.bottom; j++)
-		if (j > this->rect.bottom - (this->rect.bottom - this->rect.top) * val[0] / 0xff)
+		if (j > this->rect.bottom - (this->rect.bottom - this->rect.top) * val[0] / (this->max - this->min))
 			this->SetSafePixelRGB(this->img, this->i + this->rect.left, j, this->fgR, this->fgG, this->fgB);
 		else
 			this->SetSafePixelRGB(this->img, this->i + this->rect.left, j, this->bgR, this->bgG, this->bgB);

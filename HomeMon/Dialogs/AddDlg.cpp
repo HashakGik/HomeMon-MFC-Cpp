@@ -21,6 +21,8 @@ CAddDlg::CAddDlg(CHomeMonDlg* p, Controller *c, CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_ADDDLG, pParent)
 	, vars(_T(""))
 {
+
+
 	this->parent = p;
 	this->c = c;
 	this->img = this->c->GetImg();
@@ -41,6 +43,8 @@ CAddDlg::CAddDlg(CHomeMonDlg* p, Controller *c, CWnd* pParent /*=NULL*/)
 	this->memento["dir"] = 0;
 	this->memento["fill"] = 0;
 	this->memento["shp"] = 0;
+	this->memento["min"] = 0;
+	this->memento["max"] = 255;
 	this->memento["fgr"] = 0xff;
 	this->memento["fgg"] = 0xff;
 	this->memento["fgb"] = 0xff;
@@ -55,6 +59,7 @@ CAddDlg::CAddDlg(CHomeMonDlg* p, Controller *c, CWnd* pParent /*=NULL*/)
 	this->controls[4] = new Radar(&(this->fakeImg), this->memento);
 
 	this->justCreated = true;
+
 }
 
 CAddDlg::~CAddDlg()
@@ -85,6 +90,8 @@ void CAddDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MFCCOLORBUTTON1, colorControl);
 	DDX_Control(pDX, IDC_LIST3, coordControl);
 	DDX_Text(pDX, IDC_EDIT1, vars);
+	DDX_Control(pDX, IDC_SPIN2, minControl);
+	DDX_Control(pDX, IDC_SPIN3, maxControl);
 }
 
 
@@ -102,6 +109,10 @@ BEGIN_MESSAGE_MAP(CAddDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CAddDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CAddDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDC_BUTTON1, &CAddDlg::OnBnClickedButton1)
+	ON_EN_KILLFOCUS(IDC_EDIT3, &CAddDlg::OnEnKillfocusEdit3)
+	ON_EN_UPDATE(IDC_EDIT3, &CAddDlg::OnEnUpdateEdit3)
+	ON_EN_KILLFOCUS(IDC_EDIT4, &CAddDlg::OnEnKillfocusEdit4)
+	ON_EN_UPDATE(IDC_EDIT4, &CAddDlg::OnEnUpdateEdit4)
 END_MESSAGE_MAP()
 
 
@@ -114,13 +125,16 @@ void CAddDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 
 	if (this->justCreated)
 	{
-		this->justCreated = false;
 		this->colorControl.SetColor(RGB(0xff, 0xff, 0xff));
 		this->typeControl.SetCurSel(0);
 		this->controlRect.top = 0;
 		this->controlRect.left = 0;
 		this->controlRect.bottom = 100;
 		this->controlRect.right = 100;
+		minControl.SetRange32(-2147483648, 2147483647);
+		maxControl.SetRange32(-2147483648, 2147483647);
+		minControl.SetPos32(0);
+		maxControl.SetPos32(255);
 	}
 
 	wchar_t tmp[256];
@@ -158,6 +172,9 @@ void CAddDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 	this->OnCbnSelchangeCombo1();
 
 	Invalidate();
+
+	if (this->justCreated)
+		this->justCreated = false;
 }
 
 
@@ -341,10 +358,16 @@ void CAddDlg::OnInputChange()
 			this->memento["rings"] = slider1Control.GetPos();
 			break;
 		}
+
+		if (maxControl.GetPos32() <= minControl.GetPos32())
+			maxControl.SetPos32(minControl.GetPos32() + 1);
+
 		COLORREF col = colorControl.GetColor();
 		this->memento["fgr"] = GetRValue(col);
 		this->memento["fgg"] = GetGValue(col);
 		this->memento["fgb"] = GetBValue(col);
+		this->memento["min"] = minControl.GetPos32();
+		this->memento["max"] = maxControl.GetPos32();
 
 		this->controls[typeControl.GetCurSel()]->SetState(this->memento);
 		Invalidate();
@@ -458,4 +481,28 @@ void CAddDlg::OnBnClickedButton1()
 	this->ShowWindow(SW_HIDE);
 	this->GetParent()->ShowWindow(SW_SHOW);
 	this->parent->SetDrawRect(true);
+}
+
+
+void CAddDlg::OnEnKillfocusEdit3()
+{
+	this->OnInputChange();
+}
+
+
+void CAddDlg::OnEnUpdateEdit3()
+{
+	this->OnInputChange();
+}
+
+
+void CAddDlg::OnEnKillfocusEdit4()
+{
+	this->OnInputChange();
+}
+
+
+void CAddDlg::OnEnUpdateEdit4()
+{
+	this->OnInputChange();
 }

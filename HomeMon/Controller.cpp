@@ -43,7 +43,7 @@ void Controller::Detach(std::string name)
 
 void Controller::Update()
 {
-	std::vector<uint8_t> tmp;
+	std::vector<int32_t> tmp;
 
 	this->buffer = this->w.GetValues();
 

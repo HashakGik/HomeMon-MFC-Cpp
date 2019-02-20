@@ -40,7 +40,7 @@ void Worker::StartLogging(std::string filename)
 void Worker::Run()
 {
 	std::string param, line;
-	uint8_t val;
+	int32_t val;
 	time_t now;
 	char timestamp[20]; // 19 chars, plus \0.
 
@@ -64,15 +64,19 @@ void Worker::Run()
 				}
 
 				param = line.substr(0, line.find(" "));
-				val = std::stoi(line.substr(line.find(" "), line.length()));
+				val = (int) std::stol(line.substr(line.find(" "), line.length()));
 				this->lock.lock();
 				this->values[param] = val;
 				this->lock.unlock();
 			}
 		}
-		catch (std::invalid_argument)
+		catch (std::invalid_argument)	
 		{
-			// Exception in stoi. Since the flow is interrupted before updating the values, there is no need to take any action.
+			// Exception in stol. Since the flow is interrupted before updating the values, there is no need to take any action.
+		}
+		catch (std::out_of_range)
+		{
+			// Exception in stol. Since the flow is interrupted before updating the values, there is no need to take any action.
 		}
 	}
 
@@ -92,9 +96,9 @@ std::string Worker::ReadLine()
 	return this->serial.ReadLine();
 }
 
-std::map<std::string, uint8_t> Worker::GetValues()
+std::map<std::string, int32_t> Worker::GetValues()
 {
-	std::map<std::string, uint8_t> ret;
+	std::map<std::string, int32_t> ret;
 	this->lock.lock();
 	ret = this->values;
 	this->lock.unlock();

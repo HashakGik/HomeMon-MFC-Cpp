@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Bar.h"
 
-Bar::Bar(CImage *img, int x1, int y1, int x2, int y2, direction_t dir, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
-	Control(img, x1, y1, x2, y2, fgR, fgG, fgB, bgR, bgG, bgB)
+Bar::Bar(CImage *img, int x1, int y1, int x2, int y2, direction_t dir, int min, int max, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
+	Control(img, x1, y1, x2, y2, min, max, fgR, fgG, fgB, bgR, bgG, bgB)
 {
 	this->dir = dir;
 	this->oldVal.push_back(0);
@@ -17,11 +17,20 @@ Bar::Bar(CImage * img, std::map<std::string, int> state) :
 	this->type = C_BAR;
 }
 
-void Bar::Update(std::vector<uint8_t> val)
+void Bar::Update(std::vector<int32_t> val)
 {
 	int i, j;
 	int min = 0, max = 0;
 	uint8_t r = bgR, g = bgG, b = bgB;
+
+	for (int i = 0; i < val.size(); i++)
+	{
+		val[i] -= this->min;
+		if (val[i] < 0)
+			val[i] = 0;
+		else if (val[i] > this->max - this->min)
+			val[i] = this->max - this->min;
+	}
 
 	if (this->dir == B_HORIZONTAL)
 	{
@@ -42,7 +51,7 @@ void Bar::Update(std::vector<uint8_t> val)
 			b = this->fgB;
 		}
 
-		for (i = this->rect.left + min * (this->rect.right - this->rect.left) / 0xff; i < this->rect.left + max * (this->rect.right - this->rect.left) / 0xff; i++)
+		for (i = this->rect.left + min * (this->rect.right - this->rect.left) / (this->max - this->min); i < this->rect.left + max * (this->rect.right - this->rect.left) / (this->max - this->min); i++)
 			for (j = this->rect.top; j < this->rect.bottom; j++)
 				this->SetSafePixelRGB(this->img, i, j, r, g, b);
 	}
@@ -66,7 +75,7 @@ void Bar::Update(std::vector<uint8_t> val)
 		}
 
 		for (i = this->rect.left; i < this->rect.right; i++)
-			for (j = this->rect.bottom - max * (this->rect.bottom - this->rect.top) / 0xff; j < this->rect.bottom - min * (this->rect.bottom - this->rect.top) / 0xff; j++)
+			for (j = this->rect.bottom - max * (this->rect.bottom - this->rect.top) / (this->max - this->min); j < this->rect.bottom - min * (this->rect.bottom - this->rect.top) / (this->max - this->min); j++)
 				this->SetSafePixelRGB(this->img, i, j, r, g, b);
 	}
 

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Dial.h"
 
-Dial::Dial(CImage *img, int cx, int cy, double arc, double phase, int radius, int ticks, direction_t dir, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
-	Control(img, cx - radius, cy - radius, cx + radius, cy + radius, fgR, fgG, fgB, bgR, bgG, bgB)
+Dial::Dial(CImage *img, int cx, int cy, double arc, double phase, int radius, int ticks, direction_t dir, int min, int max, uint8_t fgR, uint8_t fgG, uint8_t fgB, uint8_t bgR, uint8_t bgG, uint8_t bgB) :
+	Control(img, cx - radius, cy - radius, cx + radius, cy + radius, min, max, fgR, fgG, fgB, bgR, bgG, bgB)
 {
 	this->cx = cx;
 	this->cy = cy;
@@ -23,14 +23,23 @@ Dial::Dial(CImage * img, std::map<std::string, int> state) :
 	this->type = C_DIAL;
 }
 
-void Dial::Update(std::vector<uint8_t> val)
+void Dial::Update(std::vector<int32_t> val)
 {
 	uint8_t tmp;
 
+	for (int i = 0; i < val.size(); i++)
+	{
+		val[i] -= this->min;
+		if (val[i] < 0)
+			val[i] = 0;
+		else if (val[i] > this->max - this->min)
+			val[i] = this->max - this->min;
+	}
+
 	tmp = (this->dir == D_COUNTERCLOCKWISE) ? 0xff - this->oldVal[0] : this->oldVal[0];
-	DrawLine(this->img, this->cx, this->cy, this->radius * 0.8 * cos(this->phase + this->arc * tmp / 255.0) + this->cx, this->radius * 0.8 * sin(this->phase + this->arc * tmp / 255.0) + this->cy, this->bgR, this->bgG, this->bgB);
+	DrawLine(this->img, this->cx, this->cy, this->radius * 0.8 * cos(this->phase + this->arc * tmp / (this->max - this->min)) + this->cx, this->radius * 0.8 * sin(this->phase + this->arc * tmp / (this->max - this->min)) + this->cy, this->bgR, this->bgG, this->bgB);
 	tmp = (this->dir == D_COUNTERCLOCKWISE) ? 0xff - val[0] : val[0];
-	DrawLine(this->img, this->cx, this->cy, this->radius * 0.8 * cos(this->phase + this->arc * tmp / 255.0) + this->cx, this->radius * 0.8 * sin(this->phase + this->arc * tmp / 255.0) + this->cy, this->fgR, this->fgG, this->fgB);
+	DrawLine(this->img, this->cx, this->cy, this->radius * 0.8 * cos(this->phase + this->arc * tmp / (this->max - this->min)) + this->cx, this->radius * 0.8 * sin(this->phase + this->arc * tmp / (this->max - this->min)) + this->cy, this->fgR, this->fgG, this->fgB);
 
 	this->oldVal[0] = val[0];
 }
@@ -93,7 +102,7 @@ CImage *Dial::GetSample(RECT r)
 		}
 
 		tmp = (this->dir == D_COUNTERCLOCKWISE) ? 0xff - 70 : 70;
-		DrawLine(this->sample, cx, cy, radius * 0.8 * cos(this->phase + this->arc * tmp / 255.0) + cx, radius * 0.8 * sin(this->phase + this->arc * tmp / 255.0) + cy, this->fgR, this->fgG, this->fgB);
+		DrawLine(this->sample, cx, cy, radius * 0.8 * cos(this->phase + this->arc * tmp / 0xff) + cx, radius * 0.8 * sin(this->phase + this->arc * tmp / 0xff) + cy, this->fgR, this->fgG, this->fgB);
 	}
 
 	return this->sample;

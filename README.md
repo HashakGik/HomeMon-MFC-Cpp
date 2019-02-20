@@ -21,7 +21,7 @@ Features
 * The application uses an object-oriented version of the [Dashboard graphics library](https://github.com/HashakGik/Dashboard-library-C)
 * Controls can be created and destroyed at runtime, and placed on screen with a simple drag and drop mechanism
 * The received data can be logged on file and a screenshot can be saved at any time
-* The application reads from any serial port (either physical or virtual, e.g. a bluetooth adapter) update strings in the form `variable value\r\n` (with value being an integer between 0 and 255), without needing to declare variables beforehand (it will be possible to connect new nodes measuring new values to the network at runtime)
+* The application reads from any serial port (either physical or virtual, e.g. a bluetooth adapter) update strings in the form `variable value\r\n` (with value being any 32 bit integer), without needing to declare variables beforehand (it will be possible to connect new nodes measuring new values to the network at runtime)
 * The values are displayed asynchronously from the update strings (the screen refresh rate can be configured)
 * The application state (including fullscreen mode or window size) is saved and restored between each execution, so the attached controls are not lost after a restart
 * Since the application uses the Microsoft Foundation Classes, it will also work on a cheap Windows XP machine.

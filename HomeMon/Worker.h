@@ -17,11 +17,11 @@ public:
 	~Worker();
 	void Start(std::string port, unsigned int baudRate);
 	void StartLogging(std::string filename);
-	std::map<std::string, uint8_t> GetValues();
+	std::map<std::string, int32_t> GetValues();
 	void Stop();
 	void StopLogging();
 private:
-	std::map<std::string, uint8_t> values;
+	std::map<std::string, int32_t> values;
 	std::mutex lock;
 	std::atomic<bool> quit;
 	std::thread *thd;

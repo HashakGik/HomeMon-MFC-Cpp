@@ -68,4 +68,11 @@ private:
 	CMFCColorButton colorControl;
 	CListBox coordControl;
 	CString vars;
+	CSpinButtonCtrl minControl;
+	CSpinButtonCtrl maxControl;
+public:
+	afx_msg void OnEnKillfocusEdit3();
+	afx_msg void OnEnUpdateEdit3();
+	afx_msg void OnEnKillfocusEdit4();
+	afx_msg void OnEnUpdateEdit4();
 };
