@@ -1,10 +1,10 @@
 HomeMon
 =======
 
-The HomeMon project will be a simple domotic wireless sensor network for monitoring various parameter at home (like temperature, humidity, air quality, ambiental light, water tank level, etc.).
-The nodes will communicate with each other, routing the measured parameters to a sink node.
+The [HomeMon](https://github.com/HashakGik/HomeMonNode-Arduino) project is a simple domotic wireless sensor network for monitoring various parameter at home (like temperature, humidity, air quality, ambiental light, water tank level, etc.).
+The nodes communicate with each other, routing the measured parameters to a sink node.
 
-This C++ application connects to a HomeMon sink node and displays the received data graphically.
+This C++ application connects to a [HomeMon sink node](https://github.com/HashakGik/HomeMonNode-Shield-Arduino-Nano) and displays the received data graphically.
 
 ![HomeMon](Screenshots/homemon.gif "HomeMon running with the emulator")
 <br />
